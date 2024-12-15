@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MediaType } from "../services/api";
 
 const mediaTypes = [
-  { name: "All", value: null },
+  { name: "All", value: "" },
   { name: "Movie", value: MediaType.Movie },
   { name: "Series", value: MediaType.Series },
   { name: "Episode", value: MediaType.Episode },
@@ -32,7 +32,7 @@ export default function TypeSelectMenu({ onTypeSelect }) {
             key={type.name}
             as="button"
             onClick={() => handleTypeSelect(type)}
-            className={({ active }) => `block w-full text-left px-4 py-2 text-sm ${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'}`}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             {type.name}
           </MenuItem>

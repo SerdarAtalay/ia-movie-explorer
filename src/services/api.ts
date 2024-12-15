@@ -36,7 +36,7 @@ export enum MediaType {
     Episode = "episode",
 }
 
-export const fetchMovies = async (search: string, year?: number, type?: MediaType): Promise<Movie[]> => {
+export const fetchMovies = async (search: string, year?: string, type?: string): Promise<Movie[]> => {
   const apiKey = import.meta.env.VITE_OMDB_API_KEY;
   try {
     const url = `${API_URL}?s=${search}&apikey=${apiKey}${year ? `&y=${year}` : ''}${type ? `&type=${type}` : ''}`;
