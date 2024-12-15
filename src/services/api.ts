@@ -5,6 +5,7 @@ export interface Movie {
   Title: string;
   Year: string;
   Poster: string;
+  Type: string;
 }
 
 export interface MovieDetails extends Movie {
@@ -23,7 +24,6 @@ export interface MovieDetails extends Movie {
   Metascore: string;
   imdbRating: string;
   imdbVotes: string;
-  Type: string;
   DVD: string;
   BoxOffice: string;
   Production: string;
