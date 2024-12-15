@@ -2,6 +2,7 @@ import { GridApi } from "ag-grid-community";
 import { ModuleRegistry } from 'ag-grid-community';
 import { ClientSideRowModelModule } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';import { useRef, useMemo, useCallback } from "react";
+import { Movie } from "../services/api";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -13,7 +14,7 @@ export default function DisplayGrid({
     columnDefs
 }: {
     gridApiRef: React.MutableRefObject<GridApi | null> | null;
-    rowData: any[];
+    rowData: Movie[]; //we could use "any" to keep it generic but for this project we know it's an array of Movie
     onDoubleClick: (data: any) => void;
     setSelectedRow: (data: any) => void;
     columnDefs: any[];
@@ -26,9 +27,6 @@ export default function DisplayGrid({
             sortable: true,
             editable: false,
             filter: true,
-            flex: 1,
-            minWidth: 100,
-            cellClass: 'cell-ellipsis',
         };
     }, []);
 
@@ -50,8 +48,8 @@ export default function DisplayGrid({
     }, [gridApiRefToUse]);
 
     return (
-        <div className="min-w-full border-separate border-spacing-0 h-[calc(100vh-16rem)]">
-            <AgGridReact<undefined>
+        <div className="border-separate border-spacing-0 h-[calc(100vh-16rem)]">
+            <AgGridReact<Movie>
                 className="ag-theme-quartz"
                 rowData={rowData}
                 columnDefs={columnDefs}
@@ -60,9 +58,6 @@ export default function DisplayGrid({
                     checkboxes: false,
                     enableClickSelection: true,
                 }}
-                pagination
-                paginationPageSize={10}
-                paginationPageSizeSelector={[5, 10, 50, 100]}
                 defaultColDef={defaultColDef}
                 onSelectionChanged={onSelectionChanged}
                 onRowDoubleClicked={onRowDoubleClicked}

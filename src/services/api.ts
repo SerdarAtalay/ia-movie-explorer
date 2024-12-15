@@ -31,19 +31,29 @@ export interface MovieDetails extends Movie {
 }
 
 export enum MediaType {
-    Movie = "movie",
-    Series = "series",
-    Episode = "episode",
+  Movie = "movie",
+  Series = "series",
+  Episode = "episode",
 }
 
-export const fetchMovies = async (search: string, year?: string, type?: string): Promise<Movie[]> => {
+export const fetchMovies = async (
+  search: string,
+  year?: string,
+  type?: string,
+  page: number = 1
+): Promise<{ movies: Movie[]; totalResults: number }> => {
   const apiKey = import.meta.env.VITE_OMDB_API_KEY;
   try {
-    const url = `${API_URL}?s=${search}&apikey=${apiKey}${year ? `&y=${year}` : ''}${type ? `&type=${type}` : ''}`;
+    const url = `${API_URL}?s=${search}&apikey=${apiKey}${
+      year ? `&y=${year}` : ""
+    }${type ? `&type=${type}` : ""}&page=${page}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.Response === "True") {
-      return data.Search;
+      return {
+        movies: data.Search,
+        totalResults: parseInt(data.totalResults, 10),
+      };
     } else {
       throw new Error(data.Error);
     }
@@ -53,10 +63,14 @@ export const fetchMovies = async (search: string, year?: string, type?: string):
   }
 };
 
-export const fetchMovieDetails = async (imdbID: string): Promise<MovieDetails> => {
+export const fetchMovieDetails = async (
+  imdbID: string
+): Promise<MovieDetails> => {
   const apiKey = import.meta.env.VITE_OMDB_API_KEY;
   try {
-    const response = await fetch(`${API_URL}?i=${imdbID}&apikey=${apiKey}&plot=full`);
+    const response = await fetch(
+      `${API_URL}?i=${imdbID}&apikey=${apiKey}&plot=full`
+    );
     const data = await response.json();
     if (data.Response === "True") {
       return data;
