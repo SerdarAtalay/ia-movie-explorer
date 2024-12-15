@@ -3,22 +3,25 @@ import { fetchMovies, Movie } from "../services/api";
 import { CombinedCellRenderer } from "../components/CellRenderer";
 import { ColDef } from "ag-grid-community";
 import DisplayGrid from "../components/DisplayGrid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Toolbar from "../components/Toolbar";
 import TypeSelectMenu from "../components/TypeSelectMenu";
 
 const MovieList: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("Pokemon");
-  const [year, setYear] = useState<string>("");
-  const [type, setType] = useState<string>("");
 
-  const [effectiveSearchQuery, setEffectiveSearchQuery] = useState<string>("Pokemon");
-  const [effectiveYear, setEffectiveYear] = useState<string>("");
-  const [effectiveType, setEffectiveType] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const effectiveSearchQuery = searchParams.get("search") || "Pokemon";
+  const effectiveYear = searchParams.get("year") || "";
+  const effectiveType = searchParams.get("type") || "";
+  const currentPage = parseInt(searchParams.get("page") || "1");
+
+  const [searchQuery, setSearchQuery] = useState<string>(effectiveSearchQuery);
+  const [year, setYear] = useState<string>(effectiveYear);
+  const [type, setType] = useState<string>(effectiveType);
+  
   const [totalResults, setTotalResults] = useState<number>(0);
 
   const navigate = useNavigate();
@@ -44,19 +47,26 @@ const MovieList: React.FC = () => {
     };
 
     getMovies();
-}, [effectiveSearchQuery, effectiveYear, effectiveType, currentPage]);
+  }, [effectiveSearchQuery, effectiveYear, effectiveType, currentPage]);
+
+  useEffect(() => {
+    setSearchQuery(effectiveSearchQuery);
+    setYear(effectiveYear);
+    setType(effectiveType);
+  }, [effectiveSearchQuery, effectiveYear, effectiveType]);
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
-        {
-            headerName: "Title",
-            field: "Title",
-            cellRenderer: CombinedCellRenderer,
-            width: 420,
-            resizable: true,
-            sortable: true,
-            filter: true,
-          },
+      {
+        headerName: "Title",
+        field: "Title",
+        cellRenderer: CombinedCellRenderer,
+        width: 420,
+        flex: 1,
+        resizable: true,
+        sortable: true,
+        filter: true,
+      },
       {
         headerName: "Year",
         field: "Year",
@@ -84,30 +94,47 @@ const MovieList: React.FC = () => {
     [navigate]
   );
 
-  const handleTypeSelect = useCallback((selectedType: { value: React.SetStateAction<string>; })=>{
-    setType(selectedType.value);
-  }, []);
+  const handleTypeSelect = useCallback(
+    (selectedType: { value: React.SetStateAction<string> }) => {
+      setType(selectedType.value);
+    },
+    []
+  );
 
   const handleSearchMovies = useCallback(() => {
-    setEffectiveSearchQuery(searchQuery);
-    setEffectiveYear(year);
-    setEffectiveType(type);
-    setCurrentPage(1);
-  }, [searchQuery, year, type]);
+    setSearchParams({
+      search: searchQuery,
+      ...(year && { year }),
+      ...(type && { type }),
+      page: "1",
+    });
+  }, [searchQuery, year, type, setSearchParams]);
 
   const totalPages = Math.ceil(totalResults / 10);
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
+      const newPage = currentPage - 1;
+      setSearchParams({
+        search: searchQuery,
+        year,
+        type,
+        page: newPage.toString(),
+      });
     }
-  }, [currentPage]);
+  }, [currentPage, searchQuery, year, type, setSearchParams]);
 
   const handleNextPage = useCallback(() => {
     if (currentPage < totalPages) {
-      setCurrentPage((prevPage) => prevPage + 1);
+      const newPage = currentPage + 1;
+      setSearchParams({
+        search: searchQuery,
+        year,
+        type,
+        page: newPage.toString(),
+      });
     }
-  }, [currentPage, totalPages]);
+  }, [currentPage, totalPages, searchQuery, year, type, setSearchParams]);
 
   return (
     <div className="container mx-auto p-4">
@@ -121,10 +148,20 @@ const MovieList: React.FC = () => {
           className="border p-2 w-full rounded-md"
           placeholder="Search a movie"
         />
-        <input type="text" value={year} onChange={(e) => setYear(e.target.value)} className="border p-2 w-full rounded-md" placeholder="Year" />
+        <input
+          type="text"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="border p-2 w-full rounded-md"
+          placeholder="Year"
+        />
         <TypeSelectMenu onTypeSelect={handleTypeSelect} />
-        <button onClick={handleSearchMovies} className="bg-blue-500 text-white p-2 rounded-md">Search</button>
-
+        <button
+          onClick={handleSearchMovies}
+          className="bg-blue-500 text-white p-2 rounded-md"
+        >
+          Search
+        </button>
       </Toolbar>
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
