@@ -3,12 +3,18 @@ import { fetchMovies, Movie } from "../services/api";
 import { PosterCellRenderer } from "../components/PosterCellRenderer";
 import { ColDef } from "ag-grid-community";
 import DisplayGrid from "../components/DisplayGrid";
+import { useNavigate } from "react-router-dom";
+import Toolbar from "../components/Toolbar";
+import TypeSelectMenu from "../components/TypeSelectMenu";
 
 const MovieList: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [search, setSearch] = useState<string>("Pokemon");
+  const [year, setYear] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getMovies = async () => {
@@ -148,20 +154,32 @@ const MovieList: React.FC = () => {
     []
   );
 
-  const handleRowDoubleClick = useCallback((data: Movie) => {
-    console.log("Double Clicked:", data);
+  const handleRowDoubleClick = useCallback(
+    (data: Movie) => {
+      navigate(`/movie/${data.imdbID}`);
+    },
+    [navigate]
+  );
+
+  const handleTypeSelect = useCallback((selectedType: { value: React.SetStateAction<string>; })=>{
+    setType(selectedType.value);
   }, []);
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Film Listesi</h2>
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="border p-2 mb-4 w-full"
-        placeholder="Filmler için arama yapın..."
-      />
+
+      <Toolbar>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border p-2 mb-4 w-full"
+          placeholder="Search a movie"
+        />
+        <input type="text" value={year} onChange={(e) => setYear(e.target.value)} className="border p-2 mb-4 w-full" placeholder="Year" />
+        <TypeSelectMenu onTypeSelect={handleTypeSelect} />
+      </Toolbar>
       {loading && <p>Yükleniyor...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <DisplayGrid
