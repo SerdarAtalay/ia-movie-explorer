@@ -1,7 +1,6 @@
-import { GridApi } from "ag-grid-community";
-import { ModuleRegistry } from 'ag-grid-community';
-import { ClientSideRowModelModule } from 'ag-grid-community';
-import { AgGridReact } from 'ag-grid-react';import { useRef, useMemo, useCallback } from "react";
+import { GridApi, ModuleRegistry, ClientSideRowModelModule } from 'ag-grid-community';
+import { AgGridReact } from 'ag-grid-react';
+import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { Movie } from "../services/api";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -47,10 +46,22 @@ export default function DisplayGrid({
         }
     }, [gridApiRefToUse]);
 
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+    useEffect(() => {
+        const matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        setIsDarkMode(matchMedia.matches);
+        const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+        matchMedia.addEventListener('change', handler);
+        return () => matchMedia.removeEventListener('change', handler);
+    }, []);
+
+    const themeClass = isDarkMode ? 'ag-theme-alpine-dark' : 'ag-theme-alpine';
+
     return (
-        <div className="border-separate border-spacing-0 h-[calc(100vh-16rem)]">
+        <div className={`border-separate border-spacing-0 h-[calc(100vh-16rem)]`}>
             <AgGridReact<Movie>
-                className="ag-theme-quartz"
+                className={themeClass}
                 rowData={rowData}
                 columnDefs={columnDefs}
                 rowSelection={{

@@ -158,7 +158,7 @@ const MovieList: React.FC = () => {
         <TypeSelectMenu onTypeSelect={handleTypeSelect} />
         <button
           onClick={handleSearchMovies}
-          className="bg-blue-500 text-white p-2 rounded-md"
+          className="bg-blue-500 dark:bg-blue-900 border-gray-300 text-white p-2 rounded-md"
         >
           Search
         </button>
@@ -177,7 +177,7 @@ const MovieList: React.FC = () => {
           <button
             onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-4 py-2 rounded border border-gray-300 disabled:opacity-50"
           >
             Previous
           </button>
@@ -187,7 +187,7 @@ const MovieList: React.FC = () => {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            className="px-4 py-2 rounded border border-gray-300 disabled:opacity-50"
           >
             Next
           </button>
